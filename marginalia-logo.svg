@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <title>StatuTrack</title>
+  <desc>A document with redline change marks: one deleted line struck through in red, one added line in green.</desc>
+
+  <!-- Document body with cut top-right corner -->
+  <path d="M 96 80 L 336 80 L 416 160 L 416 432 L 96 432 Z"
+        fill="#fefbf2"
+        stroke="#1a1a1a"
+        stroke-width="14"
+        stroke-linejoin="round"
+        stroke-linecap="round"/>
+
+  <!-- Folded corner (underside) -->
+  <path d="M 336 80 L 336 160 L 416 160 Z"
+        fill="#e6deca"
+        stroke="#1a1a1a"
+        stroke-width="14"
+        stroke-linejoin="round"
+        stroke-linecap="round"/>
+
+  <!-- Line 1: normal text -->
+  <rect x="136" y="200" width="208" height="14" rx="7" fill="#1a1a1a"/>
+
+  <!-- Line 2: normal text, shorter -->
+  <rect x="136" y="236" width="184" height="14" rx="7" fill="#1a1a1a"/>
+
+  <!-- Line 3: deleted (red, struck through) -->
+  <rect x="136" y="272" width="200" height="14" rx="7" fill="#ef4444"/>
+  <line x1="124" y1="279" x2="348" y2="279"
+        stroke="#1a1a1a"
+        stroke-width="5"
+        stroke-linecap="round"/>
+
+  <!-- Line 4: added (green) -->
+  <rect x="136" y="308" width="176" height="14" rx="7" fill="#22c55e"/>
+
+  <!-- Line 5: normal text -->
+  <rect x="136" y="344" width="192" height="14" rx="7" fill="#1a1a1a"/>
+
+  <!-- Line 6: normal text, shortest -->
+  <rect x="136" y="380" width="120" height="14" rx="7" fill="#1a1a1a"/>
+</svg>
