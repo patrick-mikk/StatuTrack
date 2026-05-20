@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+
+{% block title %}
+Diff {{ from_version.commit_date[:10] }} &rarr; {{ to_version.commit_date[:10] }}
+&middot; {{ instrument.short_title }} &middot; StatuTrack
+{% endblock %}
+
+{% block content %}
+<article>
+
+  <header class="border-b border-rule/60 pb-3 mb-6">
+    <p class="font-sans text-xs tracking-wider uppercase text-mute">
+      {{ instrument.citation }} &middot; comparison
+    </p>
+    <h1 class="font-serif text-3xl tracking-tight mt-1">
+      <a class="text-ink hover:text-link" href="/instruments/{{ instrument.slug }}">{{ instrument.short_title }}</a>
+    </h1>
+    <p class="font-sans text-sm text-mute mt-2">
+      Changes from
+      <time class="text-ink">{{ from_version.commit_date[:10] }}</time>
+      to
+      <time class="text-ink">{{ to_version.commit_date[:10] }}</time>.
+    </p>
+  </header>
+
+  {# --- summary chip row --- #}
+  {% set added_count = diffs|selectattr('change_type', 'equalto', 'added')|list|length %}
+  {% set removed_count = diffs|selectattr('change_type', 'equalto', 'removed')|list|length %}
+  {% set modified_count = diffs|selectattr('change_type', 'equalto', 'modified')|list|length %}
+  {% set renumbered_count = diffs|selectattr('change_type', 'equalto', 'renumbered')|list|length %}
+
+  <section class="font-sans text-sm flex flex-wrap gap-x-6 gap-y-1 mb-8 text-mute">
+    <span><span class="text-ink font-medium">{{ added_count }}</span> added</span>
+    <span><span class="text-darkred font-medium">{{ removed_count }}</span> removed</span>
+    <span><span class="text-ink font-medium">{{ modified_count }}</span> modified</span>
+    {% if renumbered_count %}
+    <span><span class="text-ink font-medium">{{ renumbered_count }}</span> renumbered</span>
+    {% endif %}
+    <span class="ml-auto">
+      <a class="in-prose" href="/instruments/{{ instrument.slug }}/versions">All versions</a>
+    </span>
+  </section>
+
+  {% if not diffs %}
+  <p class="text-mute italic">
+    No substantive changes between these two consolidations — only
+    metadata or formatting differed.
+  </p>
+  {% else %}
+  <section class="space-y-6">
+    {% for d in diffs %}
+    <div class="border-l-4 pl-4 py-1
+                {% if d.change_type == 'removed' %}border-darkred/40
+                {% else %}border-rule/40{% endif %}">
+      <div class="flex items-baseline gap-3 mb-1">
+        <span class="font-sans text-xs text-mute whitespace-nowrap min-w-[3rem]">
+          {{ d.citation }}
+        </span>
+        <span class="font-sans text-xs uppercase tracking-wider
+                     {% if d.change_type == 'removed' %}text-darkred
+                     {% else %}text-mute{% endif %}">
+          {{ d.change_type }}
+        </span>
+      </div>
+      <p class="whitespace-pre-wrap">{{ d.inline_html|safe }}</p>
+    </div>
+    {% endfor %}
+  </section>
+  {% endif %}
+
+  {# --- version picker (footer) --- #}
+  <footer class="border-t border-rule/40 mt-12 pt-6">
+    <form class="font-sans text-sm flex flex-wrap items-baseline gap-x-3 gap-y-2"
+          method="get" action="/instruments/{{ instrument.slug }}/compare">
+      <label class="text-mute">Compare</label>
+      <select name="from" class="border border-rule/60 rounded px-2 py-1 bg-white">
+        {% for v in all_versions %}
+        <option value="{{ v.id }}" {% if v.id == from_version.id %}selected{% endif %}>
+          {{ v.commit_date[:10] }}
+        </option>
+        {% endfor %}
+      </select>
+      <span class="text-mute">to</span>
+      <select name="to" class="border border-rule/60 rounded px-2 py-1 bg-white">
+        {% for v in all_versions %}
+        <option value="{{ v.id }}" {% if v.id == to_version.id %}selected{% endif %}>
+          {{ v.commit_date[:10] }}
+        </option>
+        {% endfor %}
+      </select>
+      <button class="border border-rule/60 rounded px-3 py-1 hover:bg-soft" type="submit">
+        Show diff
+      </button>
+    </form>
+  </footer>
+
+</article>
+{% endblock %}
