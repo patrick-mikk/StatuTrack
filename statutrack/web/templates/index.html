@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="space-y-6">
+  <div>
+    <h1 class="text-3xl font-semibold tracking-tight">StatuTrack</h1>
+    <p class="text-slate-600 mt-2 max-w-2xl">
+      A visual regulatory change tracker for Canadian federal law. Browse
+      consolidated Acts and Regulations and see what changed between any
+      two versions, inline.
+    </p>
+  </div>
+
+  <div class="rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
+    <strong>Phase 0:</strong> Passenger &rarr; Flask wiring confirmed.
+    Browse, reader and diff views land in the upcoming phases.
+  </div>
+
+  <div class="rounded-lg border border-slate-200 bg-white p-4 text-sm text-slate-700">
+    <div class="font-medium mb-2">Runtime configuration</div>
+    <dl class="grid grid-cols-1 sm:grid-cols-[10rem_1fr] gap-y-1 gap-x-4">
+      <dt class="text-slate-500">Database</dt>
+      <dd class="font-mono break-all">{{ db_path }}</dd>
+      <dt class="text-slate-500">Laws XML source</dt>
+      <dd class="font-mono break-all">{{ laws_xml_path }}</dd>
+    </dl>
+  </div>
+</section>
+{% endblock %}

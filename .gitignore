@@ -1,0 +1,38 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Virtualenv (Passenger virtualenv lives at ~/virtualenv/, not in-repo, but
+# guard against accidental local venvs too).
+.venv/
+venv/
+env/
+
+# Data + database — kept outside the app root in production, but ignore
+# anywhere they might land in the working tree.
+*.sqlite
+*.sqlite3
+*.db
+data/
+laws-lois-xml/
+
+# Passenger restart trigger and tmp dir
+tmp/
+
+# IDE / OS
+.vscode/
+.idea/
+.DS_Store
+
+# Secrets — never commit
+.env
+.env.*
+!.env.example
+
+# Build artefacts from the legacy Excel parser
+*.xlsx

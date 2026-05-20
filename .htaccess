@@ -1,0 +1,37 @@
+# StatuTrack — Apache config for the docroot.
+#
+# The cPanel "Setup Python App" wizard will append its own
+# `# DO NOT REMOVE. CLOUDLINUX PASSENGER CONFIGURATION BEGIN ... END` block
+# below this one. When that block is present, Passenger intercepts every
+# request before Apache serves a file, and the rules below act only as
+# belt-and-braces defence.
+#
+# The rules below also protect the docroot in the window BEFORE Passenger
+# is configured (or if Passenger is ever restarted broken), so that
+# source code, the SQLite database, secrets and shell scripts cannot be
+# fetched as static files over the internet.
+
+# Apache 2.4 syntax (cPanel hosts run 2.4)
+<IfModule mod_authz_core.c>
+    # Deny anything that starts with a dot (e.g. .env, .git, .htaccess).
+    <FilesMatch "^\.">
+        Require all denied
+    </FilesMatch>
+
+    # Deny source, config, data, and script files anywhere in the tree.
+    <FilesMatch "\.(py|pyc|pyo|md|sqlite|sqlite3|db|sql|sh|toml|ini|cfg|log|bak|swp|pem|key)$">
+        Require all denied
+    </FilesMatch>
+</IfModule>
+
+# Deny direct access to internal directories. Passenger does not serve
+# these as static paths anyway; this is defence in depth.
+RedirectMatch 404 ^/(statutrack|scripts|tests|tmp|data)(/|$)
+RedirectMatch 404 ^/passenger_wsgi\.py$
+RedirectMatch 404 ^/requirements\.txt$
+
+# Allow ACME / Let's Encrypt HTTP-01 challenges through unmolested.
+<IfModule mod_alias.c>
+    # /.well-known is already a real directory; just make sure nothing
+    # above blocks it.
+</IfModule>

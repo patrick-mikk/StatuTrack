@@ -1,0 +1,28 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "statutrack"
+version = "0.0.1"
+description = "Visual regulatory change tracker for Canadian federal law"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [{ name = "Patrick Mikkelsen" }]
+dependencies = [
+    "Flask>=3.0,<4.0",
+    "lxml>=5.0,<6.0",
+    "openpyxl>=3.1,<4.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+]
+
+[tool.setuptools.packages.find]
+include = ["statutrack*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
