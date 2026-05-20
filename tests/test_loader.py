@@ -191,12 +191,17 @@ def test_diffs_table_populated_with_change_rows(fake_clone, db):
         "SELECT change_type, inline_html FROM diffs ORDER BY id"
     ).fetchall()
 
-    # Two version pairs (v1->v2, v2->v3) each produce exactly one
-    # modified diff on the single subsection ("s. 1(1)") whose text
-    # changes between versions. No 'unchanged' rows should be present.
+    # No unchanged rows are ever persisted — they would be the
+    # overwhelming majority and the diff view infers them at query
+    # time.
     assert all(r["change_type"] != "unchanged" for r in diff_rows)
+
+    # Two version pairs (v1->v2, v2->v3) each modify the same words
+    # at two granularities: once on the Section row (its content
+    # includes the subsection text via collect_full_text) and once on
+    # the Subsection row itself.
     modified = [r for r in diff_rows if r["change_type"] == "modified"]
-    assert len(modified) == 2
+    assert len(modified) == 4
 
     htmls = " ".join(r["inline_html"] for r in modified)
     assert "<del>five</del>" in htmls

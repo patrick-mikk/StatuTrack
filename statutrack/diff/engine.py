@@ -46,6 +46,17 @@ ChangeType = Literal["added", "removed", "modified", "renumbered", "unchanged"]
 
 RENUMBER_THRESHOLD = 0.75
 
+# Cap the O(|unmatched_old| × |unmatched_new|) similarity sweep used
+# for renumbered-section detection. When a consolidation introduces
+# many brand-new sections (PCMLTFR jumped from 758 to 1546 sections
+# over four years), an uncapped sweep can take many minutes — and the
+# extra matches it finds at that scale are mostly noise because the
+# odds of two distinct sections being similar enough to pair up by
+# accident grows quadratically with the candidate count. When either
+# side exceeds the cap the loader skips the sweep and emits the
+# unmatched sections as add/remove rows instead.
+RENUMBER_CANDIDATE_CAP = 60
+
 
 # ---------------------------------------------------------------------------
 # Public data types
@@ -216,18 +227,32 @@ def diff_versions(old_sections: list[SectionSnapshot],
     # --- Pass 3: renumbered-section detection.
     unmatched_old = [s for i, s in enumerate(old_sections) if i not in matched_old_idx]
     unmatched_new = [s for i, s in enumerate(new_sections) if i not in matched_new_idx]
-    for n in list(unmatched_new):
-        best_o = None
-        best_score = renumber_threshold
-        for o in unmatched_old:
-            score = _similarity(o.content, n.content)
-            if score > best_score:
-                best_score = score
-                best_o = o
-        if best_o is not None:
-            aligned.append((best_o, n, "renumbered"))
-            unmatched_old.remove(best_o)
-            unmatched_new.remove(n)
+
+    # Skip the renumbered sweep entirely when either side has too many
+    # candidates — see RENUMBER_CANDIDATE_CAP for the rationale.
+    if len(unmatched_old) <= RENUMBER_CANDIDATE_CAP and \
+       len(unmatched_new) <= RENUMBER_CANDIDATE_CAP:
+        for n in list(unmatched_new):
+            # Length pre-filter: a section can't have high content
+            # similarity to one whose length differs by more than ~50%.
+            n_len = len(n.content)
+            best_o = None
+            best_score = renumber_threshold
+            for o in unmatched_old:
+                o_len = len(o.content)
+                if o_len == 0 or n_len == 0:
+                    continue
+                ratio = o_len / n_len if o_len < n_len else n_len / o_len
+                if ratio < 0.5:
+                    continue
+                score = _similarity(o.content, n.content)
+                if score > best_score:
+                    best_score = score
+                    best_o = o
+            if best_o is not None:
+                aligned.append((best_o, n, "renumbered"))
+                unmatched_old.remove(best_o)
+                unmatched_new.remove(n)
 
     # --- Emit diffs in a stable order: new-flow first (alignments and
     # insertions), then deletions at the end so they're visible in one
