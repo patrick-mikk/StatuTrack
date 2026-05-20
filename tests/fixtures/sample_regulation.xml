@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Synthetic LIMS-style regulation used by parser tests. Modelled on
+  the laws-lois-xml schema but trimmed to the minimum that exercises
+  the Identification/Body/Subsection/Paragraph paths plus a
+  HistoricalNote and a Definition. Not a real instrument.
+-->
+<Regulation xmlns:lims="http://justice.gc.ca/lims"
+            regulation-type="SOR"
+            gazette-part="II">
+  <Identification>
+    <InstrumentNumber>SOR/2099-001</InstrumentNumber>
+    <RegistrationDate>
+      <Date>
+        <YYYY>2099</YYYY><MM>01</MM><DD>15</DD>
+      </Date>
+    </RegistrationDate>
+    <ConsolidationDate>
+      <Date>
+        <YYYY>2099</YYYY><MM>02</MM><DD>01</DD>
+      </Date>
+    </ConsolidationDate>
+    <EnablingAuthority>
+      <XRefExternal reference-type="act" link="T-3.99">SAMPLE ACT</XRefExternal>
+    </EnablingAuthority>
+    <LongTitle>Regulations Respecting Synthetic Compliance</LongTitle>
+    <ShortTitle>Sample Compliance Regulations</ShortTitle>
+  </Identification>
+  <Body>
+    <Section lims:fid="s_1" lims:inforce-start-date="2099-02-01">
+      <Label>1</Label>
+      <MarginalNote>Definitions</MarginalNote>
+      <Subsection lims:fid="s_1_1">
+        <Label>(1)</Label>
+        <Text>The following definitions apply in these Regulations.</Text>
+        <Definition>
+          <Text><DefinedTermEn>reporting entity</DefinedTermEn> means a person prescribed under section 5.</Text>
+        </Definition>
+      </Subsection>
+    </Section>
+    <Section lims:fid="s_2" lims:inforce-start-date="2099-02-01">
+      <Label>2</Label>
+      <MarginalNote>Records</MarginalNote>
+      <Subsection lims:fid="s_2_1">
+        <Label>(1)</Label>
+        <Text>A reporting entity shall keep the following records:</Text>
+        <Paragraph lims:fid="s_2_1_a">
+          <Label>(a)</Label>
+          <Text>a register of transactions; and</Text>
+        </Paragraph>
+        <Paragraph lims:fid="s_2_1_b">
+          <Label>(b)</Label>
+          <Text>a record of every report sent to the Centre.</Text>
+        </Paragraph>
+      </Subsection>
+      <HistoricalNote>
+        <HistoricalNoteSubItem lims:inforce-start-date="2099-02-01">
+          <Text>SOR/2099-001, s. 2</Text>
+        </HistoricalNoteSubItem>
+      </HistoricalNote>
+    </Section>
+  </Body>
+</Regulation>
