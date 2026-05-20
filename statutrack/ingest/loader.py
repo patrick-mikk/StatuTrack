@@ -31,6 +31,7 @@ import sqlite3
 from dataclasses import dataclass
 from pathlib import Path
 
+from statutrack.diff.engine import SectionSnapshot, diff_versions
 from statutrack.parser import ParsedDocument, parse_document
 
 from .walker import FileVersion, list_file_versions, read_blob
@@ -75,6 +76,7 @@ class LoadReport:
     versions_skipped_dedup: int
     versions_skipped_existing: int
     sections_inserted: int
+    diffs_inserted: int = 0
 
 
 def _upsert_instrument(conn: sqlite3.Connection, *,
@@ -266,12 +268,15 @@ def load_instrument_history(conn: sqlite3.Connection,
             "is the path correct and tracked by git?"
         )
 
+    diffs_total = persist_diffs_for_instrument(conn, instrument_id)
+
     return LoadReport(
         instrument_id=instrument_id,
         versions_inserted=inserted,
         versions_skipped_dedup=skipped_dedup,
         versions_skipped_existing=skipped_existing,
         sections_inserted=sections_total,
+        diffs_inserted=diffs_total,
     )
 
 
@@ -283,3 +288,90 @@ def _version_exists(conn: sqlite3.Connection,
         (instrument_id, commit_hash),
     ).fetchone()
     return row is not None
+
+
+# ---------------------------------------------------------------------------
+# Diff persistence
+# ---------------------------------------------------------------------------
+
+def persist_diffs_for_instrument(conn: sqlite3.Connection,
+                                 instrument_id: int) -> int:
+    """For each consecutive pair of versions of ``instrument_id``,
+    compute the section-level diff and write the non-trivial rows
+    (added / removed / modified / renumbered) into ``diffs``.
+
+    Unchanged rows are intentionally NOT written: they are ~95% of
+    pairs for a large regulation and can be inferred at query time
+    (a section appearing in both versions with no diff row is
+    unchanged). Skipping them keeps the diffs table compact.
+
+    The function is idempotent: re-running it for the same
+    instrument is a no-op once all pairs are populated, because the
+    ``UNIQUE(from_version_id, to_version_id, citation)`` constraint
+    on diffs filters re-inserts via ``INSERT OR IGNORE``.
+    """
+    version_rows = conn.execute(
+        "SELECT id, commit_date FROM versions "
+        "WHERE instrument_id = ? ORDER BY commit_date ASC, id ASC",
+        (instrument_id,),
+    ).fetchall()
+    if len(version_rows) < 2:
+        return 0
+
+    inserted = 0
+    for prev, curr in zip(version_rows, version_rows[1:]):
+        old_sections, old_ids = _fetch_section_snapshots(conn, prev["id"])
+        new_sections, new_ids = _fetch_section_snapshots(conn, curr["id"])
+        diffs = diff_versions(old_sections, new_sections)
+
+        rows = []
+        for d in diffs:
+            if d.change_type == "unchanged":
+                continue
+            rows.append((
+                prev["id"], curr["id"],
+                d.citation,
+                d.change_type,
+                old_ids.get(id(d.old)) if d.old is not None else None,
+                new_ids.get(id(d.new)) if d.new is not None else None,
+                d.inline_html,
+            ))
+        if rows:
+            with conn:
+                cur = conn.executemany(
+                    """
+                    INSERT OR IGNORE INTO diffs
+                        (from_version_id, to_version_id, citation,
+                         change_type, old_section_id, new_section_id,
+                         inline_html)
+                    VALUES (?, ?, ?, ?, ?, ?, ?)
+                    """,
+                    rows,
+                )
+                inserted += cur.rowcount
+    return inserted
+
+
+def _fetch_section_snapshots(conn: sqlite3.Connection, version_id: int):
+    """Return ``(snapshots, id_by_snapshot)`` for one version.
+
+    The id_by_snapshot dict maps ``id(snapshot)`` to the section row's
+    primary key so the diff persister can stamp old_section_id /
+    new_section_id without an extra round-trip.
+    """
+    snapshots: list[SectionSnapshot] = []
+    id_by_snapshot: dict[int, int] = {}
+    for r in conn.execute(
+        "SELECT id, citation, fid, content, ord FROM sections "
+        "WHERE version_id = ? ORDER BY ord ASC",
+        (version_id,),
+    ):
+        snap = SectionSnapshot(
+            citation=r["citation"],
+            fid=r["fid"] or "",
+            content=r["content"],
+            ord=r["ord"],
+        )
+        snapshots.append(snap)
+        id_by_snapshot[id(snap)] = r["id"]
+    return snapshots, id_by_snapshot

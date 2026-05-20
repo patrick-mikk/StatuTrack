@@ -16,11 +16,14 @@ PY="$VENV/bin/python"
 
 echo "[$(date -Iseconds)] refresh starting"
 
-git -C "$LAWS_XML_DIR" pull --ff-only
+# Advance the local main ref to whatever the remote points at, without
+# touching the working tree. The ingest reads through the git object
+# store (cat-file blob), so a checkout would be wasted I/O and on
+# shared hosting can hit the LVE process cap.
+git -C "$LAWS_XML_DIR" fetch origin "+refs/heads/main:refs/heads/main"
 
-# Phase 2 will provide scripts/ingest.py. Until then this is a no-op.
 if [[ -f "$APP_ROOT/scripts/ingest.py" ]]; then
-    "$PY" "$APP_ROOT/scripts/ingest.py" --incremental
+    "$PY" "$APP_ROOT/scripts/ingest.py" --all
 fi
 
 mkdir -p "$APP_ROOT/tmp"

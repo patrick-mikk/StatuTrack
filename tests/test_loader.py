@@ -179,6 +179,48 @@ def test_rerunning_is_idempotent(fake_clone, db):
     assert db.execute("SELECT COUNT(*) FROM versions").fetchone()[0] == 3
 
 
+def test_diffs_table_populated_with_change_rows(fake_clone, db):
+    """After ingesting three substantive versions, the loader should
+    have written the inter-version diffs into ``diffs`` and skipped
+    the unchanged rows."""
+    load_instrument_history(
+        db, fake_clone, "eng/regulations/SOR-2099-001.xml",
+        slug="SOR-2099-001",
+    )
+    diff_rows = db.execute(
+        "SELECT change_type, inline_html FROM diffs ORDER BY id"
+    ).fetchall()
+
+    # Two version pairs (v1->v2, v2->v3) each produce exactly one
+    # modified diff on the single subsection ("s. 1(1)") whose text
+    # changes between versions. No 'unchanged' rows should be present.
+    assert all(r["change_type"] != "unchanged" for r in diff_rows)
+    modified = [r for r in diff_rows if r["change_type"] == "modified"]
+    assert len(modified) == 2
+
+    htmls = " ".join(r["inline_html"] for r in modified)
+    assert "<del>five</del>" in htmls
+    assert "<ins>six</ins>" in htmls
+    assert "<del>six</del>" in htmls
+    assert "<ins>seven</ins>" in htmls
+
+
+def test_diff_persistence_is_idempotent(fake_clone, db):
+    load_instrument_history(
+        db, fake_clone, "eng/regulations/SOR-2099-001.xml",
+        slug="SOR-2099-001",
+    )
+    first_count = db.execute("SELECT COUNT(*) FROM diffs").fetchone()[0]
+    # Re-run; the UNIQUE constraint on (from, to, citation) should
+    # absorb every re-insert, leaving the row count unchanged.
+    load_instrument_history(
+        db, fake_clone, "eng/regulations/SOR-2099-001.xml",
+        slug="SOR-2099-001",
+    )
+    second_count = db.execute("SELECT COUNT(*) FROM diffs").fetchone()[0]
+    assert first_count == second_count
+
+
 def test_blob_dedup_skips_byte_identical_revision(fake_clone, db, monkeypatch):
     """The loader's blob-level dedup collapses two FileVersion entries
     that share a blob SHA into a single ``versions`` row.

@@ -37,11 +37,21 @@ echo "=> Installing Python dependencies"
 
 mkdir -p "$DATA_DIR"
 if [[ ! -d "$LAWS_XML_DIR/.git" ]]; then
-    echo "=> Cloning laws-lois-xml (this is a large repo; expect 10-30 minutes)"
-    git clone "$LAWS_XML_REPO" "$LAWS_XML_DIR"
+    # ``--no-checkout`` keeps the working tree empty. We only ever
+    # read content through ``git cat-file blob`` (see
+    # statutrack.ingest.walker.read_blob), so writing out 15k files
+    # to the working tree is wasted I/O — and worse, on CloudLinux
+    # hosts the checkout's many helper forks can trip the per-user
+    # process limit and abort partway through.
+    echo "=> Cloning laws-lois-xml (objects only, no working tree)"
+    git clone --no-checkout "$LAWS_XML_REPO" "$LAWS_XML_DIR"
 else
-    echo "=> laws-lois-xml already present, pulling latest"
-    git -C "$LAWS_XML_DIR" pull --ff-only
+    echo "=> laws-lois-xml already present, fetching latest"
+    # Advance main without touching the working tree — same reasoning
+    # as the clone above. ``+refs/heads/main:refs/heads/main`` updates
+    # the local branch ref to whatever the remote currently points at,
+    # bypassing checkout entirely.
+    git -C "$LAWS_XML_DIR" fetch origin "+refs/heads/main:refs/heads/main"
 fi
 
 if [[ ! -f "$DB_PATH" ]]; then

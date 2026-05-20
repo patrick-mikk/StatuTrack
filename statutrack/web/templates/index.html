@@ -20,14 +20,46 @@
       tracked-changes document — alongside a clean reader view of the
       current consolidated text.
     </p>
-    <p class="text-mute">
-      Phase&nbsp;0 is up: the Passenger&nbsp;&rarr;&nbsp;Flask layer is wired
-      and the database schema is in place. The reader and diff views
-      follow.
-    </p>
   </section>
 
-  <section class="mt-8">
+  {% if instruments %}
+  <section class="mt-10">
+    <h2 class="section-heading">Ingested instruments</h2>
+    <ul class="mt-3 divide-y divide-rule/40">
+      {% for i in instruments %}
+      <li class="py-3">
+        <div class="flex items-baseline justify-between gap-4">
+          <a class="in-prose font-serif" href="/instruments/{{ i.slug }}">
+            {{ i.short_title }}
+          </a>
+          <span class="font-sans text-xs text-mute whitespace-nowrap">
+            {{ i.citation }}
+          </span>
+        </div>
+        <div class="font-sans text-xs text-mute mt-1">
+          {{ i.version_count }} version{% if i.version_count != 1 %}s{% endif %}
+          {% if i.latest_last_amended %}
+          &middot; last amended <time>{{ i.latest_last_amended }}</time>
+          {% endif %}
+          &middot;
+          <a class="in-prose" href="/instruments/{{ i.slug }}/versions">history</a>
+        </div>
+      </li>
+      {% endfor %}
+    </ul>
+  </section>
+  {% else %}
+  <section class="mt-10">
+    <h2 class="section-heading">No instruments ingested yet</h2>
+    <p class="text-mute text-sm mt-3">
+      Run <code class="font-sans text-ink">scripts/ingest.py --slug
+      SOR-2002-184</code> from the project root to populate the
+      database, then refresh this page.
+    </p>
+  </section>
+  {% endif %}
+
+  <section class="mt-10">
     <h2 class="section-heading">A revision will read like this</h2>
     <figure class="border-l-4 border-rule/60 pl-5 py-1 my-4 bg-soft/40">
       <blockquote>
@@ -45,16 +77,6 @@
       the regular ink with a mint underline — the same idiom as
       Microsoft&nbsp;Word's track&nbsp;changes.
     </p>
-  </section>
-
-  <section class="mt-8">
-    <h2 class="section-heading">Runtime</h2>
-    <dl class="font-sans text-sm grid grid-cols-[7rem_1fr] gap-y-1 mt-3">
-      <dt class="text-mute">Database</dt>
-      <dd class="text-ink break-all">{{ db_path }}</dd>
-      <dt class="text-mute">XML source</dt>
-      <dd class="text-ink break-all">{{ laws_xml_path }}</dd>
-    </dl>
   </section>
 
 </article>

@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+
+{% block title %}{{ instrument.short_title }} &middot; StatuTrack{% endblock %}
+
+{% block content %}
+<article>
+
+  <header class="border-b border-rule/60 pb-3 mb-6">
+    <p class="font-sans text-xs tracking-wider uppercase text-mute">
+      {{ instrument.type|capitalize }} &middot; {{ instrument.citation }}
+    </p>
+    <h1 class="font-serif text-3xl tracking-tight mt-1">{{ instrument.short_title }}</h1>
+    {% if instrument.long_title and instrument.long_title != instrument.short_title %}
+    <p class="font-serif italic text-mute mt-2">{{ instrument.long_title }}</p>
+    {% endif %}
+    {% if instrument.enabling_act %}
+    <p class="font-sans text-xs text-mute mt-2">
+      Enabling Act &middot; {{ instrument.enabling_act }}
+    </p>
+    {% endif %}
+  </header>
+
+  <section class="font-sans text-xs text-mute flex flex-wrap items-baseline gap-x-4 gap-y-1 mb-8">
+    <span>
+      Version as of <time>{{ version.commit_date[:10] }}</time>
+    </span>
+    {% if version.last_amended %}
+    <span>Last amended <time>{{ version.last_amended }}</time></span>
+    {% endif %}
+    <span>{{ version.section_count }} sections</span>
+    <a class="in-prose" href="/instruments/{{ instrument.slug }}/versions">All versions</a>
+  </section>
+
+  <section class="space-y-6">
+    {% set last_heading = namespace(path="") %}
+    {% for s in sections %}
+      {% if s.heading_path and s.heading_path != last_heading.path %}
+        <h2 class="section-heading">{{ s.heading_path }}</h2>
+        {% set last_heading.path = s.heading_path %}
+      {% endif %}
+      <div id="s-{{ s.id }}" class="scroll-mt-20">
+        <div class="flex items-baseline gap-3">
+          <a href="#s-{{ s.id }}"
+             class="font-sans text-xs text-mute hover:text-ink whitespace-nowrap min-w-[3rem]">
+            {{ s.citation }}
+          </a>
+          <div class="flex-1">
+            {% if s.marginal_note %}
+            <p class="font-sans text-xs uppercase tracking-wider text-mute mb-1">
+              {{ s.marginal_note }}
+            </p>
+            {% endif %}
+            <p class="whitespace-pre-wrap">{{ s.content }}</p>
+          </div>
+        </div>
+      </div>
+    {% endfor %}
+  </section>
+
+</article>
+{% endblock %}
