@@ -6,71 +6,116 @@
   <title>{% block title %}StatuTrack{% endblock %}</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
-    // Design tokens. A warm, paper-like palette and a serif stack that
-    // resolves to a real text-face on every major OS without a webfont
-    // request. Diff colours are deep (not pastel) so they read as ink
-    // rather than highlighter.
+    // Design tokens.
+    //
+    // Reference look: Wikipedia / Britannica article surface — white
+    // background, serif body, sans-serif chrome, hairline section
+    // rules. Track-changes are Microsoft Word style: dark red text +
+    // strikethrough for deletions, a #66FFCC underline marker under
+    // black text for insertions (the colour itself is too light to
+    // legibly carry body text on white, but reads well as a thick
+    // underline marker — the Word "track changes" mark).
     tailwind.config = {
       theme: {
         extend: {
           fontFamily: {
-            serif: ['Charter', '"Iowan Old Style"', '"Source Serif Pro"',
+            serif: ['"Source Serif Pro"', 'Charter', '"Iowan Old Style"',
                     'Georgia', 'Cambria', '"Times New Roman"', 'Times', 'serif'],
-            sans:  ['"Inter"', 'system-ui', '-apple-system', 'BlinkMacSystemFont',
-                    '"Segoe UI"', 'Helvetica', 'Arial', 'sans-serif'],
+            sans:  ['"Inter"', 'system-ui', '-apple-system',
+                    'BlinkMacSystemFont', '"Segoe UI"', 'Helvetica',
+                    'Arial', 'sans-serif'],
           },
           colors: {
-            paper:   '#faf7f0',
-            ink:     '#1f1d1a',
-            mute:    '#7a746a',
-            rule:    '#dcd5c6',
-            added:   '#1e6b2e',
-            removed: '#9b2c2c',
-            accent:  '#5b3924',
+            ink:     '#1a1a1a',
+            mute:    '#54595d',     // Wikipedia caption grey
+            rule:    '#a2a9b1',     // Wikipedia thumb-border grey (softened on use)
+            soft:    '#eaecf0',     // Wikipedia infobox grey, used very sparingly
+            darkred: '#8b0000',     // deletion ink
+            mint:    '#66FFCC',     // insertion marker (underline only)
+            link:    '#8b0000',     // matches darkred — refined, not "internet blue"
+            linkhover: '#5c0000',
           },
           maxWidth: {
-            prose: '38rem',   // ~608px — the optimal reading column for serif body.
+            prose: '46rem',         // ~736px — wider than a literary column,
+                                    // closer to a Wikipedia article body.
           },
         },
       },
     };
   </script>
   <style type="text/tailwindcss">
-    /* Diffs use ink colour, not background highlighter — the redline
-       style of a Word track-changes document, not a GitHub PR. */
-    ins { color: theme('colors.added');   text-decoration: none; }
-    del { color: theme('colors.removed'); text-decoration: line-through;
-          text-decoration-thickness: 1px; }
+    /* Track-changes inline marks ---------------------------------------
+       <del> reads as struck dark-red ink. <ins> keeps the regular ink
+       colour but gets a thick mint underline drawn just below the text
+       baseline — Word's "track changes mark" rendered as a bar of
+       colour rather than recolouring the body type. */
+    del {
+        color: theme('colors.darkred');
+        text-decoration: line-through;
+        text-decoration-thickness: 1.5px;
+        text-decoration-color: theme('colors.darkred');
+    }
+    ins {
+        color: theme('colors.ink');
+        text-decoration: underline;
+        text-decoration-color: theme('colors.mint');
+        text-decoration-thickness: 3px;
+        text-underline-offset: 2px;
+    }
 
-    /* Body copy is set generously: 1.125rem (≈18px) at line-height 1.65.
-       Headings are quiet — a regulatory reader is not a dashboard. */
-    body { font-feature-settings: "kern", "liga", "onum"; }
+    /* Wikipedia-style section heading: small bottom rule, room to breathe.
+       Applied via the .section-heading utility so semantic <h2> elements
+       in template content can opt in. */
+    .section-heading {
+        font-family: theme('fontFamily.sans');
+        font-size: 1.25rem;
+        font-weight: 600;
+        margin-top: 2rem;
+        padding-bottom: 0.35rem;
+        border-bottom: 1px solid theme('colors.rule');
+        color: theme('colors.ink');
+    }
+
+    body {
+        font-feature-settings: "kern", "liga", "onum";
+    }
+
+    a.in-prose {
+        color: theme('colors.link');
+        text-decoration: none;
+    }
+    a.in-prose:hover {
+        color: theme('colors.linkhover');
+        text-decoration: underline;
+        text-decoration-thickness: 1px;
+        text-underline-offset: 2px;
+    }
   </style>
   <link rel="icon" href="data:,">
 </head>
-<body class="bg-paper text-ink min-h-screen font-serif text-[1.0625rem] leading-[1.65] antialiased">
-  <header class="border-b border-rule">
-    <div class="max-w-prose mx-auto px-6 py-5 flex items-baseline justify-between">
-      <a href="/" class="text-sm tracking-[0.18em] uppercase text-ink hover:text-accent">
-        Statutrack
+<body class="bg-white text-ink min-h-screen font-serif text-[1.0625rem] leading-[1.7] antialiased">
+  <header class="border-b border-rule/60">
+    <div class="max-w-prose mx-auto px-6 py-4 flex items-baseline justify-between">
+      <a href="/" class="font-sans text-base font-semibold tracking-tight text-ink hover:text-link">
+        StatuTrack
       </a>
-      <nav class="text-xs tracking-wider uppercase text-mute space-x-5">
+      <nav class="font-sans text-sm text-mute space-x-5">
         <a href="/" class="hover:text-ink">Browse</a>
         <a href="/healthz" class="hover:text-ink">Status</a>
       </nav>
     </div>
   </header>
 
-  <main class="max-w-prose mx-auto px-6 py-16">
+  <main class="max-w-prose mx-auto px-6 py-10">
     {% block content %}{% endblock %}
   </main>
 
-  <footer class="border-t border-rule mt-24">
-    <div class="max-w-prose mx-auto px-6 py-8 text-xs text-mute leading-relaxed">
+  <footer class="border-t border-rule/60 mt-20">
+    <div class="max-w-prose mx-auto px-6 py-6 font-sans text-xs text-mute leading-relaxed">
       Source data from
-      <a class="text-ink hover:text-accent" href="https://github.com/justicecanada/laws-lois-xml">justicecanada/laws-lois-xml</a>.
+      <a class="in-prose" href="https://github.com/justicecanada/laws-lois-xml">justicecanada/laws-lois-xml</a>.
       Not legal advice — always verify against
-      <a class="text-ink hover:text-accent" href="https://laws-lois.justice.gc.ca/">laws-lois.justice.gc.ca</a>.
+      <a class="in-prose" href="https://laws-lois.justice.gc.ca/">laws-lois.justice.gc.ca</a>.
     </div>
   </footer>
 </body>

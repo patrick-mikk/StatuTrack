@@ -1,47 +1,55 @@
 {% extends "base.html" %}
 
 {% block content %}
-<article class="space-y-10">
+<article>
 
-  <header class="space-y-3">
-    <h1 class="text-4xl tracking-tight">StatuTrack</h1>
-    <p class="text-mute italic">
-      A visual change tracker for Canadian federal law.
+  <header class="border-b border-rule/60 pb-3 mb-6">
+    <h1 class="font-serif text-3xl tracking-tight">StatuTrack</h1>
+    <p class="font-sans text-sm text-mute mt-1 italic">
+      Visual change tracker for Canadian federal law.
     </p>
   </header>
 
   <section class="space-y-4">
     <p>
-      Browse the consolidated text of Canadian Acts and Regulations,
-      and see what changed between any two versions &mdash; inline,
-      sentence by sentence &mdash; with the official XML source from
-      Justice Canada treated as the canonical version archive.
+      StatuTrack treats the
+      <a class="in-prose" href="https://github.com/justicecanada/laws-lois-xml">official XML
+      consolidation</a>
+      of Canadian Acts and Regulations as a version archive, and renders
+      what changed between any two versions inline — in the style of a
+      tracked-changes document — alongside a clean reader view of the
+      current consolidated text.
     </p>
     <p class="text-mute">
-      Phase 0 is up: the Passenger&rarr;Flask layer is wired and the
-      database schema is in place. The reader and diff views land in
-      the next phases.
+      Phase&nbsp;0 is up: the Passenger&nbsp;&rarr;&nbsp;Flask layer is wired
+      and the database schema is in place. The reader and diff views
+      follow.
     </p>
   </section>
 
-  <section class="space-y-3">
-    <h2 class="text-sm tracking-[0.18em] uppercase text-mute">A revision will read like this</h2>
-    <figure class="border-l border-rule pl-5 space-y-1">
-      <blockquote class="text-ink">
+  <section class="mt-8">
+    <h2 class="section-heading">A revision will read like this</h2>
+    <figure class="border-l-4 border-rule/60 pl-5 py-1 my-4 bg-soft/40">
+      <blockquote>
         Every reporting entity shall keep, for a period of
-        <del>five years</del><ins>six years</ins> from the day on
-        which the record is created, a copy of every report it
-        sends to the Centre.
+        <del>five years</del> <ins>six years</ins>
+        from the day on which the record is created, a copy of every
+        report it sends to the Centre.
       </blockquote>
-      <figcaption class="text-xs text-mute italic">
-        s. 71(1) &mdash; amended <span class="not-italic">2024-06-19</span>
+      <figcaption class="font-sans text-xs text-mute mt-2">
+        s. 71(1) &middot; amended <time>2024-06-19</time>
       </figcaption>
     </figure>
+    <p class="text-mute text-sm">
+      Deletions are dark&nbsp;red and struck through; insertions keep
+      the regular ink with a mint underline — the same idiom as
+      Microsoft&nbsp;Word's track&nbsp;changes.
+    </p>
   </section>
 
-  <section class="space-y-3">
-    <h2 class="text-sm tracking-[0.18em] uppercase text-mute">Runtime</h2>
-    <dl class="font-sans text-sm grid grid-cols-[8rem_1fr] gap-y-1">
+  <section class="mt-8">
+    <h2 class="section-heading">Runtime</h2>
+    <dl class="font-sans text-sm grid grid-cols-[7rem_1fr] gap-y-1 mt-3">
       <dt class="text-mute">Database</dt>
       <dd class="text-ink break-all">{{ db_path }}</dd>
       <dt class="text-mute">XML source</dt>
