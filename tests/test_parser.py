@@ -61,3 +61,38 @@ def test_parse_document_accepts_raw_bytes():
     parsed = parse_document(xml_bytes, source_url="https://example.test/sample.xml")
     assert parsed.source_url == "https://example.test/sample.xml"
     assert parsed.document_type == "regulation"
+
+
+# --------------------------------------------------------------------
+# Real-world smoke test against the consolidated Bank Act XML. Numbers
+# in the asserts are intentionally loose ranges rather than exact
+# counts so the test stays green as the upstream consolidation drifts;
+# the point is to catch parser regressions, not to pin the snapshot.
+# --------------------------------------------------------------------
+
+BANK_ACT = Path(__file__).parent / "fixtures" / "B-1.01.xml"
+
+
+def test_bank_act_parses_statute_identification():
+    parsed = parse_document(BANK_ACT)
+    assert parsed.document_type == "statute"
+    assert parsed.short_title == "Bank Act"
+    assert parsed.long_title == "An Act respecting banks and banking"
+    assert parsed.url_code == "B-1.01"
+    # Citation pattern: "S.C. <year>, c. <chapter>" — the original act
+    # passed in 1991 as c. 46.
+    assert "1991" in parsed.formal_citation
+    assert "c. 46" in parsed.formal_citation
+
+
+def test_bank_act_extracts_expected_structures():
+    parsed = parse_document(BANK_ACT)
+    # The Bank Act is a large statute — sanity-check that all the
+    # major dataclass lists are populated. Lower bounds are
+    # conservative to absorb consolidation drift.
+    assert len(parsed.sections) > 500
+    assert len(parsed.provisions) > 5000
+    assert len(parsed.definitions) > 100
+    assert len(parsed.amendments) > 500
+    assert len(parsed.headings) > 100
+    assert len(parsed.schedules) >= 1
