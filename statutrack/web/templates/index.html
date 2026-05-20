@@ -1,29 +1,53 @@
 {% extends "base.html" %}
 
 {% block content %}
-<section class="space-y-6">
-  <div>
-    <h1 class="text-3xl font-semibold tracking-tight">StatuTrack</h1>
-    <p class="text-slate-600 mt-2 max-w-2xl">
-      A visual regulatory change tracker for Canadian federal law. Browse
-      consolidated Acts and Regulations and see what changed between any
-      two versions, inline.
+<article class="space-y-10">
+
+  <header class="space-y-3">
+    <h1 class="text-4xl tracking-tight">StatuTrack</h1>
+    <p class="text-mute italic">
+      A visual change tracker for Canadian federal law.
     </p>
-  </div>
+  </header>
 
-  <div class="rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
-    <strong>Phase 0:</strong> Passenger &rarr; Flask wiring confirmed.
-    Browse, reader and diff views land in the upcoming phases.
-  </div>
+  <section class="space-y-4">
+    <p>
+      Browse the consolidated text of Canadian Acts and Regulations,
+      and see what changed between any two versions &mdash; inline,
+      sentence by sentence &mdash; with the official XML source from
+      Justice Canada treated as the canonical version archive.
+    </p>
+    <p class="text-mute">
+      Phase 0 is up: the Passenger&rarr;Flask layer is wired and the
+      database schema is in place. The reader and diff views land in
+      the next phases.
+    </p>
+  </section>
 
-  <div class="rounded-lg border border-slate-200 bg-white p-4 text-sm text-slate-700">
-    <div class="font-medium mb-2">Runtime configuration</div>
-    <dl class="grid grid-cols-1 sm:grid-cols-[10rem_1fr] gap-y-1 gap-x-4">
-      <dt class="text-slate-500">Database</dt>
-      <dd class="font-mono break-all">{{ db_path }}</dd>
-      <dt class="text-slate-500">Laws XML source</dt>
-      <dd class="font-mono break-all">{{ laws_xml_path }}</dd>
+  <section class="space-y-3">
+    <h2 class="text-sm tracking-[0.18em] uppercase text-mute">A revision will read like this</h2>
+    <figure class="border-l border-rule pl-5 space-y-1">
+      <blockquote class="text-ink">
+        Every reporting entity shall keep, for a period of
+        <del>five years</del><ins>six years</ins> from the day on
+        which the record is created, a copy of every report it
+        sends to the Centre.
+      </blockquote>
+      <figcaption class="text-xs text-mute italic">
+        s. 71(1) &mdash; amended <span class="not-italic">2024-06-19</span>
+      </figcaption>
+    </figure>
+  </section>
+
+  <section class="space-y-3">
+    <h2 class="text-sm tracking-[0.18em] uppercase text-mute">Runtime</h2>
+    <dl class="font-sans text-sm grid grid-cols-[8rem_1fr] gap-y-1">
+      <dt class="text-mute">Database</dt>
+      <dd class="text-ink break-all">{{ db_path }}</dd>
+      <dt class="text-mute">XML source</dt>
+      <dd class="text-ink break-all">{{ laws_xml_path }}</dd>
     </dl>
-  </div>
-</section>
+  </section>
+
+</article>
 {% endblock %}

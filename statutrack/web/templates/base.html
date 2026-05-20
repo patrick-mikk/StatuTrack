@@ -5,27 +5,72 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{% block title %}StatuTrack{% endblock %}</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    // Design tokens. A warm, paper-like palette and a serif stack that
+    // resolves to a real text-face on every major OS without a webfont
+    // request. Diff colours are deep (not pastel) so they read as ink
+    // rather than highlighter.
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            serif: ['Charter', '"Iowan Old Style"', '"Source Serif Pro"',
+                    'Georgia', 'Cambria', '"Times New Roman"', 'Times', 'serif'],
+            sans:  ['"Inter"', 'system-ui', '-apple-system', 'BlinkMacSystemFont',
+                    '"Segoe UI"', 'Helvetica', 'Arial', 'sans-serif'],
+          },
+          colors: {
+            paper:   '#faf7f0',
+            ink:     '#1f1d1a',
+            mute:    '#7a746a',
+            rule:    '#dcd5c6',
+            added:   '#1e6b2e',
+            removed: '#9b2c2c',
+            accent:  '#5b3924',
+          },
+          maxWidth: {
+            prose: '38rem',   // ~608px — the optimal reading column for serif body.
+          },
+        },
+      },
+    };
+  </script>
+  <style type="text/tailwindcss">
+    /* Diffs use ink colour, not background highlighter — the redline
+       style of a Word track-changes document, not a GitHub PR. */
+    ins { color: theme('colors.added');   text-decoration: none; }
+    del { color: theme('colors.removed'); text-decoration: line-through;
+          text-decoration-thickness: 1px; }
+
+    /* Body copy is set generously: 1.125rem (≈18px) at line-height 1.65.
+       Headings are quiet — a regulatory reader is not a dashboard. */
+    body { font-feature-settings: "kern", "liga", "onum"; }
+  </style>
   <link rel="icon" href="data:,">
 </head>
-<body class="bg-slate-50 text-slate-900 min-h-screen font-sans">
-  <header class="border-b border-slate-200 bg-white">
-    <div class="max-w-5xl mx-auto px-6 py-4 flex items-center justify-between">
-      <a href="/" class="text-lg font-semibold tracking-tight">StatuTrack</a>
-      <nav class="text-sm text-slate-600 space-x-4">
-        <a href="/" class="hover:text-slate-900">Browse</a>
-        <a href="/healthz" class="hover:text-slate-900">Status</a>
+<body class="bg-paper text-ink min-h-screen font-serif text-[1.0625rem] leading-[1.65] antialiased">
+  <header class="border-b border-rule">
+    <div class="max-w-prose mx-auto px-6 py-5 flex items-baseline justify-between">
+      <a href="/" class="text-sm tracking-[0.18em] uppercase text-ink hover:text-accent">
+        Statutrack
+      </a>
+      <nav class="text-xs tracking-wider uppercase text-mute space-x-5">
+        <a href="/" class="hover:text-ink">Browse</a>
+        <a href="/healthz" class="hover:text-ink">Status</a>
       </nav>
     </div>
   </header>
-  <main class="max-w-5xl mx-auto px-6 py-10">
+
+  <main class="max-w-prose mx-auto px-6 py-16">
     {% block content %}{% endblock %}
   </main>
-  <footer class="border-t border-slate-200 mt-16">
-    <div class="max-w-5xl mx-auto px-6 py-6 text-xs text-slate-500">
+
+  <footer class="border-t border-rule mt-24">
+    <div class="max-w-prose mx-auto px-6 py-8 text-xs text-mute leading-relaxed">
       Source data from
-      <a class="underline" href="https://github.com/justicecanada/laws-lois-xml">justicecanada/laws-lois-xml</a>.
-      Not legal advice. Always verify against
-      <a class="underline" href="https://laws-lois.justice.gc.ca/">laws-lois.justice.gc.ca</a>.
+      <a class="text-ink hover:text-accent" href="https://github.com/justicecanada/laws-lois-xml">justicecanada/laws-lois-xml</a>.
+      Not legal advice — always verify against
+      <a class="text-ink hover:text-accent" href="https://laws-lois.justice.gc.ca/">laws-lois.justice.gc.ca</a>.
     </div>
   </footer>
 </body>

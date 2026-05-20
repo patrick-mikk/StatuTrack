@@ -24,6 +24,11 @@ laws-lois-xml/
 # Passenger restart trigger and tmp dir
 tmp/
 
+# Passenger / cPanel runtime logs (live alongside the app root).
+*.log
+error_log
+access_log
+
 # IDE / OS
 .vscode/
 .idea/
