@@ -29,6 +29,10 @@ CREATE TABLE IF NOT EXISTS versions (
     instrument_id   INTEGER NOT NULL REFERENCES instruments(id) ON DELETE CASCADE,
     commit_hash     TEXT NOT NULL,
     commit_date     TEXT NOT NULL,                 -- ISO 8601, from git commit timestamp
+    blob_sha        TEXT NOT NULL,                 -- git blob SHA of the XML at this commit;
+                                                   -- two versions sharing a blob_sha are
+                                                   -- byte-identical, used by the loader to
+                                                   -- skip metadata-only churn.
     pit_date        TEXT,                          -- lims:pit-date from XML
     last_amended    TEXT,                          -- lims:lastAmendedDate
     parsed_at       TEXT NOT NULL,                 -- ingestion timestamp
