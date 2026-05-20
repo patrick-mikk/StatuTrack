@@ -22,10 +22,10 @@ LAWS_XML_REPO="https://github.com/justicecanada/laws-lois-xml.git"
 LAWS_XML_DIR="${DATA_DIR}/laws-lois-xml"
 DB_PATH="${STATUTRACK_DB:-$DATA_DIR/statutrack/statutrack.sqlite}"
 
-VENV="${VIRTUAL_ENV:-$HOME/virtualenv/statutrack.mikkelsen.ca/StatuTrack/3.12}"
+VENV="${VIRTUAL_ENV:-$HOME/virtualenv/statutrack.mikkelsen.ca/3.12}"
 if [[ ! -d "$VENV" ]]; then
-    # cPanel "Setup Python App" creates the virtualenv under a path
-    # derived from the app root. Allow the user to override via env.
+    # cPanel "Setup Python App" creates the virtualenv at
+    # ~/virtualenv/<app-root>/<py-version>. Allow override via env.
     echo "warning: expected virtualenv at $VENV not found; using VIRTUAL_ENV=$VIRTUAL_ENV" >&2
 fi
 PIP="$VENV/bin/pip"

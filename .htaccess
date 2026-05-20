@@ -10,28 +10,33 @@
 # is configured (or if Passenger is ever restarted broken), so that
 # source code, the SQLite database, secrets and shell scripts cannot be
 # fetched as static files over the internet.
-
 # Apache 2.4 syntax (cPanel hosts run 2.4)
 <IfModule mod_authz_core.c>
     # Deny anything that starts with a dot (e.g. .env, .git, .htaccess).
     <FilesMatch "^\.">
         Require all denied
     </FilesMatch>
-
     # Deny source, config, data, and script files anywhere in the tree.
     <FilesMatch "\.(py|pyc|pyo|md|sqlite|sqlite3|db|sql|sh|toml|ini|cfg|log|bak|swp|pem|key)$">
         Require all denied
     </FilesMatch>
 </IfModule>
-
 # Deny direct access to internal directories. Passenger does not serve
 # these as static paths anyway; this is defence in depth.
 RedirectMatch 404 ^/(statutrack|scripts|tests|tmp|data)(/|$)
 RedirectMatch 404 ^/passenger_wsgi\.py$
 RedirectMatch 404 ^/requirements\.txt$
-
 # Allow ACME / Let's Encrypt HTTP-01 challenges through unmolested.
 <IfModule mod_alias.c>
     # /.well-known is already a real directory; just make sure nothing
     # above blocks it.
 </IfModule>
+# DO NOT REMOVE. CLOUDLINUX PASSENGER CONFIGURATION BEGIN
+PassengerAppRoot "/home/s6grzl1f/statutrack.mikkelsen.ca"
+PassengerBaseURI "/"
+PassengerPython "/home/s6grzl1f/virtualenv/statutrack.mikkelsen.ca/3.12/bin/python"
+# DO NOT REMOVE. CLOUDLINUX PASSENGER CONFIGURATION END
+# DO NOT REMOVE OR MODIFY. CLOUDLINUX ENV VARS CONFIGURATION BEGIN
+<IfModule Litespeed>
+</IfModule>
+# DO NOT REMOVE OR MODIFY. CLOUDLINUX ENV VARS CONFIGURATION END

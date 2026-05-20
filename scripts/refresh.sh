@@ -11,7 +11,7 @@ set -euo pipefail
 
 APP_ROOT="${APP_ROOT:-$HOME/statutrack.mikkelsen.ca}"
 LAWS_XML_DIR="${LAWS_XML_DIR:-$HOME/data/laws-lois-xml}"
-VENV="${VIRTUAL_ENV:-$HOME/virtualenv/statutrack.mikkelsen.ca/StatuTrack/3.12}"
+VENV="${VIRTUAL_ENV:-$HOME/virtualenv/statutrack.mikkelsen.ca/3.12}"
 PY="$VENV/bin/python"
 
 echo "[$(date -Iseconds)] refresh starting"
